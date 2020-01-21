@@ -91,7 +91,7 @@ phase2 = mod((w.*t.*180)./pi, 360);
 
 % Compare phase results
 err = (phase - phase2) + 360*((phase - phase2) < -180) - 360*((phase - phase2) > 180);
-figure; hist(err, 25);
+figure; hist(err, 50);
 
 % Compare rotation results
 %figure; hist(roterr(abs(roterr) < 20), 25)

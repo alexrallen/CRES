@@ -23,7 +23,7 @@ B = 1;
 err = [];
 
 % Sample entire particle store
-for i=1:100
+for i=1:1000
     
     % Get particle path data and plot x/y plane projection (for simple viz)
     step_data = step(map.FIRST_STEP_INDEX(i) + 1 : map.LAST_STEP_INDEX(i), : );
