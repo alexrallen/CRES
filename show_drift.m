@@ -21,9 +21,10 @@ B = 1;
 
 % Track cumulative error
 errc = [];
+err = [];
 
 % Sample entire particle store
-for i=1:100
+for i=1:1000
     
     % Get particle path data and plot x/y plane projection (for simple viz)
     step_data = step(map.FIRST_STEP_INDEX(i) + 1 : map.LAST_STEP_INDEX(i), : );
@@ -67,5 +68,5 @@ for i=1:100
 end
 
 % Plot histogram of lamar radius errors
-figure; hist(err, 50);
-figure; hist(errc, 50);
+subplot(1, 2, 1); hist(err, 50); title("Raw Error");
+subplot(1, 2, 2); hist(errc, 50); title("Corrected Error");
