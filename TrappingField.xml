@@ -35,25 +35,46 @@
 
     <cylinder_space name="world_space" z1="-0.1" z2="0.1" r="0.02"/>
 
+<!--
     <tag name="magnet_tag">
-        <tag name="hoop_tag">
-            <cylinder_surface
-                name="hoop_surface"
-                z1="-0.01"
-                z2="0.01"
-                r="0.02"
-            />	    
-        </tag>
-        <tag name="coil_tag">
 	    <cylinder_tube_space
-                name="coil_space"
-                z1="-0.05"
-                z2="0.05"
-                r1="0.01"
-                r2="0.01"
+                name="solenoid_space"
+                z1="-0.03"
+                z2="0.03"
+                r1="0.015"
+                r2="0.016"
                 radial_mesh_count="30"
             />
-        </tag>
+	    <cylinder_tube_space
+                name="outer_space"
+                z1="-0.1"
+                z2="0.1"
+                r1="0.018"
+                r2="0.019"
+                radial_mesh_count="30"
+            />
+    </tag>
+-->
+
+    <tag name="magnet_tag">
+	    <cylinder_surface
+                name="solenoid_space"
+                z1="-0.03"
+                z2="0.03"
+                r="0.015"
+                longitudinal_mesh_count="100"
+                longitudinal_mesh_power="1."
+                axial_mesh_count="30"
+            />
+	    <cylinder_surface
+                name="outer_space"
+                z1="-0.1"
+                z2="0.1"
+                r="0.018"
+                longitudinal_mesh_count="100"
+                longitudinal_mesh_power="1."
+                axial_mesh_count="30"
+            />
     </tag>
 
     <tag name="center_tag">
@@ -61,14 +82,14 @@
     </tag>
 
     <space name="world" node="world_space">
-	<surface name="hoop" node="hoop_surface"/>
-	<space name="coil" node="coil_space"/>
+	<surface name="solenoid" node="solenoid_space"/>
+	<surface name="outer" node="outer_space"/>
         <surface name="center" node="center_surface"/>
     </space>
 
 
-    <electromagnet name="electromagnet_hoop" surfaces="assembly/@hoop_tag" current="10000"/>
-    <electromagnet name="electromagnet_coil" spaces="assembly/@coil_tag" current="500000"/>
+    <electromagnet name="electromagnet_solenoid" surfaces="world/solenoid" current="-750000.0"/>
+    <electromagnet name="electromagnet_outer" surfaces="world/outer" current="1000000.0"/>
 
 </geometry>
 
@@ -79,31 +100,29 @@
     <ksfield_electric_constant name="electric_constant" field="0. 0. 0."/>
 
     <!-- magnetic fields -->
-	
+
+    <!--	
     <ksfield_magnetic_constant name="magnetic_constant" field="0. 0. 1."/>
+    -->
 
     <ksfield_electromagnet
         name="magnetic_solenoid"
         system="world"
-        surfaces="assembly/@hoop_tag"
+        surfaces="world/@magnet_tag"
     >
         <integrating_field_solver/>
     </ksfield_electromagnet>
 
-    <ksfield_electromagnet
-        name="magnetic_field"
-    >
-        <integrating_field_solver/>
-    </ksfield_electromagnet>
-<!--
-   <magnetic_superposition_field
+   <!--
+   <ksfield_magnetic_super_position
 	name="magnetic_field"
-	use_caching="true"
+        use_caching="false"
    >
-	<add_field name="magnetic_constant" enhancement="1.0" />
-	<add_field name="magnetic_solenoid" enhancement="1.0" />
-   </magnetic_superposition_field>
--->
+       <add_field name="magnetic_constant"/>
+       <add_field name="magnetic_solenoid"/>
+   </ksfield_magnetic_super_position>
+  -->
+
     <!-- generators -->
 
     <ksgen_generator_composite name="generator_uniform" pid="11">
@@ -221,8 +240,8 @@
     <ks_simulation
         run="1"
         seed="51385"
-        events="1000000"
-        magnetic_field="magnetic_field"
+        events="100000"
+        magnetic_field="magnetic_solenoid"
         electric_field="electric_constant"
         space="space_world"
         generator="generator_uniform"
