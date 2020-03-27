@@ -97,7 +97,7 @@
 
     <!-- electric fields --> 
 	
-    <ksfield_electric_constant name="electric_constant" field="0. 0. 0."/>
+    <ksfield_electric_constant name="electric_constant" field="0. -2.0e5 0."/>
 
     <!-- magnetic fields -->
 
@@ -130,12 +130,12 @@
             <energy_fix value="511.0e3"/>
         </energy_composite>
         <position_cylindrical_composite surface="world/center">
-            <r_fix value="0." />
-            <phi_fix value="0." />
-            <z_fix value="0."/>
+            <r_uniform value_min="0." value_max="0.009" />
+            <phi_uniform value_min="0." value_max="360." />
+            <z_uniform value_min="-0.25" value_max="0.25"/>
         </position_cylindrical_composite>
         <direction_spherical_composite surface="world/center">
-            <theta_spherical angle_min="0" angle_max="90"/>
+            <theta_spherical angle_min="0" angle_max="180"/>
             <phi_uniform value_min="0." value_max="360."/>
         </direction_spherical_composite>
         <time_composite>
@@ -170,7 +170,7 @@
 
     <!-- writers -->
 
-    <kswrite_root name="write_root" base="TrappingFieldTerms.root"/>
+    <kswrite_root name="write_root" base="EmptyingSim.root"/>
 
     <!-- output -->
 
@@ -242,7 +242,7 @@
     <ks_simulation
         run="1"
         seed="51385"
-        events="1000"
+        events="100000"
         magnetic_field="magnetic_solenoid"
         electric_field="electric_constant"
         space="space_world"
