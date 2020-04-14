@@ -33,7 +33,7 @@
 
     <!-- world -->
 
-    <cylinder_space name="world_space" z1="-0.1" z2="0.1" r="0.02"/>
+    <cylinder_space name="world_space" z1="-0.5" z2="0.5" r="0.02"/>
 
     <tag name="center_tag">
         <disk_surface name="center_surface" r="0.00001" z="0."/>
@@ -95,13 +95,13 @@
     <!-- terminators -->
 
     <ksterm_death name="term_world" />
-    <ksterm_max_z name="term_max_z" z="0.05"/>
-    <ksterm_min_z name="term_min_z" z="-0.05"/>
-    <ksterm_max_r name="term_max_r" r="0.01"/>
+    <ksterm_max_z name="term_max_z" z="0.3"/>
+    <ksterm_min_z name="term_min_z" z="-0.3"/>
+    <ksterm_max_r name="term_max_r" r="0.0057785"/>
 
     <!-- writers -->
 
-    <kswrite_root name="write_root" base="ConstantBFieldTerms.root"/>
+    <kswrite_root name="write_root" base="ConstantField.root"/>
 
     <!-- output -->
 
@@ -172,7 +172,7 @@
     <ks_simulation
         run="1"
         seed="51385"
-        events="1000000"
+        events="10000"
         magnetic_field="magnetic_constant"
         electric_field="electric_constant"
         space="space_world"

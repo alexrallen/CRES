@@ -127,12 +127,12 @@
 
     <ksgen_generator_composite name="generator_uniform" pid="11">
         <energy_composite>
-            <energy_fix value="511.0e3"/>
+            <energy_fix value="100.0e3"/>
         </energy_composite>
         <position_cylindrical_composite surface="world/center">
-            <r_uniform value_min="0." value_max="0.009" />
+            <r_uniform value_min="0." value_max="0.0057785" />
             <phi_uniform value_min="0." value_max="360." />
-            <z_uniform value_min="-0.25" value_max="0.25"/>
+            <z_uniform value_min="-0.3" value_max="0.3"/>
         </position_cylindrical_composite>
         <direction_spherical_composite surface="world/center">
             <theta_spherical angle_min="0" angle_max="180"/>
@@ -165,12 +165,12 @@
     <ksterm_death name="term_world" />
     <ksterm_max_z name="term_max_z" z="0.30"/>
     <ksterm_min_z name="term_min_z" z="-0.30"/>
-    <ksterm_max_r name="term_max_r" r="0.01"/>
+    <ksterm_max_r name="term_max_r" r="0.0057785"/>
     <ksterm_max_steps name="term_max_steps" steps="10000"/>
 
     <!-- writers -->
 
-    <kswrite_root name="write_root" base="TrappingFieldTerms.root"/>
+    <kswrite_root name="write_root" base="TrappingFieldUniform.root"/>
 
     <!-- output -->
 
@@ -242,7 +242,7 @@
     <ks_simulation
         run="1"
         seed="51385"
-        events="100000"
+        events="10000"
         magnetic_field="magnetic_solenoid"
         electric_field="electric_constant"
         space="space_world"
