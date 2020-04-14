@@ -63,6 +63,8 @@ phase2 = mod(w.*t, 2*pi);
 err = (phase - phase2) + 2*pi*((phase - phase2) < 0);
 hist(err, 50);
 
+% Plot error vs 
+
 %Graph features
 
 title("Aggregate \Delta\theta Error")
