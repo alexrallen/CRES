@@ -11,64 +11,74 @@ oldsrc = src;
 
 % Constants
 c = 3e8;
-factor = 1.820618101874320e-30;
-m = 9.109e-31;
+mass = 9.10938363e-31;
 v = 2.59627974e8;
-gamma = 1/sqrt(1 - (v^2)/(c^2));
-q = 1.602e-19;
+gamma = 2;
+q = 1.60217663e-19;
 E = 200000;
 B = 1;
+theta = -90;
+R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
 
-% Track cumulative error
-err = [];
+vtan = v.*vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2)./... 
+    vecnorm([track.initial_momentum_x track.initial_momentum_y track.initial_momentum_z], 2, 2);
 
-% Sample entire particle store
-for i=1:1000
-    
-    % Get particle path data and plot x/y plane projection (for simple viz)
-    step_data = step(map.FIRST_STEP_INDEX(i) + 1 : map.LAST_STEP_INDEX(i), : );
-    plot(step_data.position_x, step_data.position_y); hold on;
-    
-    cps = [];
-    
-    % Get initial center from particle generator
-    track_data = track(map.TRACK_INDEX(i) + 1, : );
-    pos = [track_data.initial_position_x track_data.initial_position_y];
-    mom = [track_data.initial_momentum_x track_data.initial_momentum_y];
-    
-    v0 = norm(mom) / factor;
-    lamar = gamma*m*v0/(q*B);    
-    
-    nmom = mom./norm(mom);
-    theta = -90;
-    R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
-    ic = (nmom*R)*lamar + pos;
-    
-    % Get centers from particle path data
-    for j=1:height(step_data)
-        
-        % Calculate theoretical center point given lamar radius
-        px = [step_data(j,:).position_x step_data(j,:).position_y];
-        v_i = [step_data.momentum_x(j) step_data.momentum_y(j)];
-        v_i = v_i./norm(v_i);
-        theta = -90;
-        R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
-        cp = v_i*R;
-        cp = cp * lamar;
-        cp = cp + px;
-        cps = [cps; cp];
-        err = [err; norm(cp - ic)];
-    end
-    
-    % Option to plot predicted centers
-    %plot(cps(:,1),cps(:,2)); 
-end
+larmor = gamma*mass*vtan/(q*B);
+
+ic = ([track.initial_momentum_x track.initial_momentum_y]./vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2))*R...
+    .*larmor...
+    + [track.initial_position_x track.initial_position_y];
+
+
+m = arrayfun(@(x,y,z)  repmat(x + 1, z - y + 1, 1), map.TRACK_INDEX, map.FIRST_STEP_INDEX, map.LAST_STEP_INDEX, 'UniformOutput', false);
+m = vertcat(m{:});
+
+l = arrayfun(@(x) larmor(m(x)), (1:1:size(step.momentum_x, 1)).');
+c = cell2mat(arrayfun(@(x) ic(m(x),:), (1:1:size(step.momentum_x, 1)).', 'UniformOutput', false));
+
+cp = (([step.momentum_x step.momentum_y]./vecnorm([step.momentum_x step.momentum_y], 2, 2))*R).*l...
+    + [step.position_x step.position_y];
+
+err = vecnorm(cp - c, 2, 2);
 
 % Plot histogram of lamar radius errors
-figure; hist(err, 50);
+%figure; hist(err, 50);
+
+%% Plot Histogram
+dat = [m cp c step.time err];
+p = dat(dat(:,1) == 20,:);
+
+subplot(1,2,1)
+hist(err, 50)
+title("Total Observed Deviations from Predicted Center")
+xlabel("Distance from Predicted Center (m)")
+ylabel("Count (N = 17.2 mil samples)")
+
+subplot(1,2,2)
+plot(p(:,6), p(:,7))
+title("Sample Error v. Time")
+xlabel("Time (s)")
+ylabel("Distance Between Measured and Predicted Center of Rotation (m)")
 
 
+%% Plot Visual
 
+N = 100000;
 
+dat = [m step.position_x step.position_y];
+dat = dat(1:N,:);
 
+scatter(dat(:,2), dat(:,3), 10, dat(:,1), 'Filled')
+colormap(jet(size(dat,1)))
+
+title("Sample Electron Path Tracing")
+xlabel("X (m)")
+ylabel("Y (m)")
+
+hold on;
+r = 0.01;
+ang=0:0.001:2*pi; 
+xp=r*cos(ang);
+yp=r*sin(ang);
+plot(xp,yp,'color','black');
 

@@ -12,6 +12,7 @@ oldsrc = src;
 % Constants
 c = 3e8;
 
+
 % Calculate change in kinetic energy across simulation
 dat = track.final_kinetic_energy - track.initial_kinetic_energy;
 dat = dat ./ 1e6;

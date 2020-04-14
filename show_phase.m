@@ -14,89 +14,62 @@ m_0 = 510.999e3;
 c = 3e8;
 theta = -90;
 R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
-factor = 1.820618101874320e-30;
 m = 9.109e-31;
 v = 2.59627974e8;
-gamma = 1/sqrt(1 - (v^2)/(c^2));
+gamma = 2;
 q = 1.602e-19;
 E = 200000;
 B = 1;
 
 % Get initial phase
-pos = [track.initial_position_x track.initial_position_y];
-mom = [track.initial_momentum_x track.initial_momentum_y];
+vtan = v.*vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2)./... 
+    vecnorm([track.initial_momentum_x track.initial_momentum_y track.initial_momentum_z], 2, 2);
     
-v0 = arrayfun(@(x, y) norm([x y]), mom(:, 1), mom(:, 2)) ./ factor;
-lamar = gamma.*m.*v0./(q*B);
+larmor = gamma.*m.*vtan./(q*B);
 
-nmom = mom./arrayfun(@(x, y) norm([x y]), mom(:, 1), mom(:, 2));
-ic = -1*cell2mat(arrayfun(@(x, y) [x y]*R, nmom(:, 1), nmom(:, 2),'UniformOutput',false));
+ic = ([track.initial_momentum_x track.initial_momentum_y]./vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2))*R...
+    + [track.initial_position_x track.initial_position_y];
+
+ic = -1*ic; % Point outwards
 
 % Get final phase
-pos = [track.final_position_x track.final_position_y];
-mom = [track.final_momentum_x track.final_momentum_y];
-nmom = mom./arrayfun(@(x, y) norm([x y]), mom(:, 1), mom(:, 2));
-fc = -1*cell2mat(arrayfun(@(x, y) [x y]*R, nmom(:, 1), nmom(:, 2),'UniformOutput',false));
+fc = ([track.final_momentum_x track.final_momentum_y]./vecnorm([track.final_momentum_x track.final_momentum_y], 2, 2))*R...
+    + [track.final_position_x track.final_position_y];
+
+fc = -1*fc; % Point outwards
 
 % Get simulated phase shifts
-phase = arrayfun(@(a, b, x, y) atan2d(a*y-b*x,a*x+b*y), ic(:, 1), ic(:, 2), fc(:, 1), fc(:, 2));
-phase = phase + (phase < 0)*360;
+phase = arrayfun(@(a, b, x, y) atan2(a*y-b*x,a*x+b*y), ic(:, 1), ic(:, 2), fc(:, 1), fc(:, 2));
+phase = phase + (phase < 0)*2*pi;
 
-% Get simulated number of loops
-%{
-min_rad = 0.005;
-loops = [];
-
-for i=1:height(map)
-    loop = 0;
-    step_data = step(map.FIRST_STEP_INDEX(i) + 1 : map.LAST_STEP_INDEX(i), : );
-    in_center = 1;
-    for j=1:height(step_data)       
-        d = norm([step_data(j,:).position_x step_data(j,:).position_y]);
-        if(d < min_rad)
-            if in_center == 0
-                loop = loop + 1;
-            end
-            in_center = 1;
-        else
-            in_center = 0;
-        end
-    end
-    loops = [loops; loop];
-end
-%}
 
 % Compute expected phase shifts
-pos = [track.initial_position_x track.initial_position_y];
-te = track.initial_kinetic_energy + m_0;
-gamma = te ./ m_0;
-v0 = sqrt(1 - 1./(gamma.^2)).*c;
 
 [az, el, ~] = arrayfun(@(x, y, z) cart2sph(x, y, z), track.initial_momentum_x, track.initial_momentum_y, track.initial_momentum_z,'UniformOutput',false);
-[vx, vy, vz] = arrayfun(@(x, y, z) sph2cart(x, y, z), cell2mat(az), cell2mat(el), v0,'UniformOutput',false);
+[vx, vy, vz] = arrayfun(@(x, y, z) sph2cart(x, y, z), cell2mat(az), cell2mat(el), v*ones(size(el, 1), 1),'UniformOutput',false);
 
 h = size(cell2mat(vx));
 v = [cell2mat(vx), cell2mat(vy), zeros(h(1), 1)];
-r = [-ic.*lamar, zeros(h(1), 1)];
+r = [-ic.*larmor, zeros(h(1), 1)];
 
-nm = cell2mat(arrayfun(@(a, b, c) norm([a b c]), r(:, 1), r(:, 2), r(:, 3), 'UniformOutput', false));
-vm = cell2mat(arrayfun(@(a, b, c) norm([a b c]), v(:, 1), v(:, 2), v(:, 3), 'UniformOutput', false));
+nm = vecnorm(r, 2, 2);
+vm = vecnorm(v, 2, 2);
 w = vm ./ nm;
 
 t = 0.05 ./ cell2mat(vz);
-%tf = track.final_time;
-%rotations = (w.*t)/(2*pi);
-phase2 = mod((w.*t.*180)./pi, 360);
-%phase3 = rand(h(1), 1)*360;
+phase2 = mod(w.*t, 2*pi);
 
 % Compare phase results
-err = (phase - phase2) + 360*((phase - phase2) < -180) - 360*((phase - phase2) > 180);
-figure; hist(err, 50);
+err = (phase - phase2) + 2*pi*((phase - phase2) < 0);
+hist(err, 50);
 
-% Compare rotation results
-%figure; hist(roterr(abs(roterr) < 20), 25)
-%roterr = loops - rotations;
+% Plot error vs 
 
+%Graph features
+
+title("Aggregate \Delta\theta Error")
+xlabel("Error (rad)")
+ylabel("Count (N = 17.2 mil samples)")
 
 
 
