@@ -1,3 +1,6 @@
-*.png
 *.csv
+*.vti
+*.root
 ansys.aedtresults/
+data/
+*venv/
