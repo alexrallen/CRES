@@ -1,6 +1,12 @@
 *.csv
 *.vti
 *.root
+*.vti
+*.fld
 ansys.aedtresults/
+Kassiopeia/
+output
+root/
+rootpy/
 data/
 *venv/
