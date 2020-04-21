@@ -1,3 +1,11 @@
 *.png
 *.csv
+*.root
+*.vti
+*.fld
 ansys.aedtresults/
+Kassiopeia/
+output
+root/
+rootpy/
+
