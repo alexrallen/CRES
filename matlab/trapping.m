@@ -92,8 +92,8 @@ B = 1;
 l = 0.3;
 
 % Get max radius from center to be trapped (without colliding with edges)
-%ke = 50e3:1:500e3;
-ke = [ 100e3  100e3 ];
+ke = 50e3:1:500e3;
+%ke = [ 100e3  100e3 ];
 v = c.*sqrt(1 - 1./((ke./m_0 + 1).^2));
 gamma = 1./sqrt(1 - v.^2./c^2);
 lmax = gamma.*m.*v./(q*B);

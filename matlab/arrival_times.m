@@ -15,7 +15,7 @@ m_0 = 510.999e3;
 ke = 511e3;
 l = 0.3;
 
-v = sqrt(1 - 1/((ke/m0 + 1)^2));
+v = sqrt(1 - 1/((ke/m_0 + 1)^2));
 
 % Verify distrobution of arrival times
 final_time = track.final_time;

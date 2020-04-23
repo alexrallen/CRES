@@ -1,5 +1,5 @@
 % Set simulation source
-src = "empty";
+src = "empty_mapped";
 
 % Load data
 if exist('oldsrc', 'var') == 0
