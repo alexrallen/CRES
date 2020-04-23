@@ -10,20 +10,24 @@ end
 oldsrc = src;
 
 % Constants
+m_0 = 510.999e3;
+ke = 100e3;
 c = 3e8;
-mass = 9.10938363e-31;
-v = 2.59627974e8;
-gamma = 2;
-q = 1.60217663e-19;
-E = 200000;
-B = 1;
 theta = -90;
 R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
+m = 9.109e-31;
+q = 1.602e-19;
+E = 200000;
+B = 1;
+l = 0.3;
+
+v = c*sqrt(1 - 1/((ke/m_0 + 1)^2));
+gamma = 1/sqrt(1 - v^2/c^2);
 
 vtan = v.*vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2)./... 
     vecnorm([track.initial_momentum_x track.initial_momentum_y track.initial_momentum_z], 2, 2);
 
-larmor = gamma*mass*vtan/(q*B);
+larmor = gamma*m*vtan/(q*B);
 
 ic = ([track.initial_momentum_x track.initial_momentum_y]./vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2))*R...
     .*larmor...
@@ -40,24 +44,37 @@ cp = (([step.momentum_x step.momentum_y]./vecnorm([step.momentum_x step.momentum
     + [step.position_x step.position_y];
 
 err = vecnorm(cp - c, 2, 2);
-errc = vecnorm(cp - c + [(E/B)*step.time, zeros(size(step, 1), 1)], 2, 2); % Drift Correction
+%errc = vecnorm(cp - c + [(E/B)*step.time, zeros(size(step, 1), 1)], 2, 2); % Drift Correction
 
 
 
 % Plot histogram of lamar radius errors
-subplot(1, 2, 1); hist(err, 50); title("Raw Error");
-xlabel("Distance Between Predicted and Simulated Center (m)");
-ylabel("Count (N = 2.3 mil samples)")
+%subplot(1, 2, 1); hist(err, 50); title("Raw Error");
+%xlabel("Distance Between Predicted and Simulated Center (m)");
+%ylabel("Count (N = 2.3 mil samples)")
 
-subplot(1, 2, 2); hist(errc, 50); title("Corrected Error");
-xlabel("Distance Between Predicted and Simulated Center (m)");
-ylabel("Count (N = 2.3 mil samples)")
+%subplot(1, 2, 2); hist(errc, 50); title("Corrected Error");
+%xlabel("Distance Between Predicted and Simulated Center (m)");
+%ylabel("Count (N = 2.3 mil samples)")
+
 
 figure
+subplot(2, 1, 1);
 scatter(step.time, err, 10, 'Filled'); hold on
-scatter(step.time, errc, 10, 'Filled');
-title("Error vs. Time")
-xlabel("Time (s)")
-ylabel("Distance Between Centers (m)")
-legend(["Raw Error" "Corrected Error"])
+
+title("Displacement vs. Time");
+xlabel("Time (s)");
+ylabel("Displacement from Initial Center (m)");
+
+err_fit = (E/B)*step.time;
+err_res = err - err_fit;
+
+subplot(2, 1, 2);
+scatter(step.time, err_res, 2, 'Filled');
+title("Residuals");
+xlabel("Time (s)");
+ylabel("Deviation from Modelled Displacement");
+
+
+
 

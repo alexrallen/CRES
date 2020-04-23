@@ -15,11 +15,14 @@ c = 3e8;
 
 % Calculate change in kinetic energy across simulation
 dat = track.final_kinetic_energy - track.initial_kinetic_energy;
-dat = dat ./ 1e6;
+dat = dat ./ 1e3;
 
 % Histogram of kinetic energy errors
 hist(dat, 10000);
 
+title('\Delta Kinetic Energy')
+xlabel('Kinetic Energy Change (keV)')
+ylabel('Count (n=1e4)')
 
 
 

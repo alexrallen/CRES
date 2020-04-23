@@ -11,15 +11,19 @@ oldsrc = src;
 
 % Constants
 m_0 = 510.999e3;
+ke = 100e3;
 c = 3e8;
 theta = -90;
 R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
 m = 9.109e-31;
-v = 2.59627974e8;
-gamma = 2;
 q = 1.602e-19;
 E = 200000;
 B = 1;
+l = 0.3;
+
+v = c*sqrt(1 - 1/((ke/m_0 + 1)^2));
+gamma = 1/sqrt(1 - v^2/c^2);
+
 
 % Get initial phase
 vtan = v.*vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2)./... 
@@ -27,20 +31,20 @@ vtan = v.*vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2)./..
     
 larmor = gamma.*m.*vtan./(q*B);
 
-ic = ([track.initial_momentum_x track.initial_momentum_y]./vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2))*R...
-    + [track.initial_position_x track.initial_position_y];
-
-ic = -1*ic; % Point outwards
+ic = -1*([track.initial_momentum_x track.initial_momentum_y]./vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2))*R;
 
 % Get final phase
-fc = ([track.final_momentum_x track.final_momentum_y]./vecnorm([track.final_momentum_x track.final_momentum_y], 2, 2))*R...
-    + [track.final_position_x track.final_position_y];
+fc = -1*([track.final_momentum_x track.final_momentum_y]./vecnorm([track.final_momentum_x track.final_momentum_y], 2, 2))*R;
 
-fc = -1*fc; % Point outwards
+% Get number of complete rotations
+rots = arrayfun(@(x,y) sum(diff(diff(step(x + 1:y+1, :).position_x.^2 + step(x + 1:y+1, :).position_y.^2) > 0) == 1),map.FIRST_STEP_INDEX, map.LAST_STEP_INDEX);
+
+vecs = arrayfun(@(x,y) -1*([step(x + 1:y+1, :).momentum_x step(x + 1:y+1, :).momentum_y]./vecnorm([step(x + 1:y+1, :).momentum_x step(x + 1:y+1, :).momentum_y], 2, 2))*R,map.FIRST_STEP_INDEX, map.LAST_STEP_INDEX, 'UniformOutput', false);
+rots2 = arrayfun(@(a, b, x) sum(diff(atan2(a*x{1,1}(:,2) - b*x{1,1}(:,1), a*x{1,1}(:,1) + b*x{1,1}(:,2)) > 0) == 1), ic(:, 1), ic(:, 2), vecs);
 
 % Get simulated phase shifts
-phase = arrayfun(@(a, b, x, y) atan2(a*y-b*x,a*x+b*y), ic(:, 1), ic(:, 2), fc(:, 1), fc(:, 2));
-phase = phase + (phase < 0)*2*pi;
+dph = arrayfun(@(a, b, x, y) atan2(a*y-b*x,a*x+b*y), ic(:, 1), ic(:, 2), fc(:, 1), fc(:, 2));
+phase = rots2*2*pi + dph + (dph < 0)*2*pi;
 
 
 % Compute expected phase shifts
@@ -56,20 +60,27 @@ nm = vecnorm(r, 2, 2);
 vm = vecnorm(v, 2, 2);
 w = vm ./ nm;
 
-t = 0.05 ./ cell2mat(vz);
-phase2 = mod(w.*t, 2*pi);
+t = l ./ cell2mat(vz);
+phase2 = w.*t;
 
 % Compare phase results
-err = (phase - phase2) + 2*pi*((phase - phase2) < 0);
-hist(err, 50);
+err = phase - phase2;
 
-% Plot error vs 
-
+%% Plotting
 %Graph features
 
+hist(err, 10000);
 title("Aggregate \Delta\theta Error")
 xlabel("Error (rad)")
-ylabel("Count (N = 17.2 mil samples)")
+ylabel("Count (N = 1e4)")
+
+%Graph z-vel vs err
+
+figure
+scatter(track.initial_momentum_z, err);
+title("z-Momentum vs. Phase Error");
+xlabel("p_z");
+ylabel("Error (rad)");
 
 
 

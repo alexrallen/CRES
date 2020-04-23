@@ -10,7 +10,7 @@ end
 oldsrc = src;
 
 sweep = track(track.terminator_name == "term_max_r", :);
-trapped = sweep(sweep.total_steps > 1000, :);
+trapped = sweep(sweep.total_steps > 100, :);
 times = trapped.final_time - trapped.initial_time;
 
 % These are the particle lifetimes that are likely to be trapped. 

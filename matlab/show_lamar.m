@@ -10,20 +10,24 @@ end
 oldsrc = src;
 
 % Constants
+m_0 = 510.999e3;
+ke = 100e3;
 c = 3e8;
-mass = 9.10938363e-31;
-v = 2.59627974e8;
-gamma = 2;
-q = 1.60217663e-19;
-E = 200000;
-B = 1;
 theta = -90;
 R = [cosd(theta) -sind(theta); sind(theta) cosd(theta)];
+m = 9.109e-31;
+q = 1.602e-19;
+E = 200000;
+B = 1;
+l = 0.3;
+
+v = c*sqrt(1 - 1/((ke/m_0 + 1)^2));
+gamma = 1/sqrt(1 - v^2/c^2);
 
 vtan = v.*vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2)./... 
     vecnorm([track.initial_momentum_x track.initial_momentum_y track.initial_momentum_z], 2, 2);
 
-larmor = gamma*mass*vtan/(q*B);
+larmor = gamma*m*vtan/(q*B);
 
 ic = ([track.initial_momentum_x track.initial_momentum_y]./vecnorm([track.initial_momentum_x track.initial_momentum_y], 2, 2))*R...
     .*larmor...
@@ -46,7 +50,7 @@ err = vecnorm(cp - c, 2, 2);
 
 %% Plot Histogram
 dat = [m cp c step.time err];
-p = dat(dat(:,1) == 20,:);
+p = dat(dat(:,1) == 100,:);
 
 subplot(1,2,1)
 hist(err, 50)
@@ -55,7 +59,7 @@ xlabel("Distance from Predicted Center (m)")
 ylabel("Count (N = 17.2 mil samples)")
 
 subplot(1,2,2)
-plot(p(:,6), p(:,7))
+plot(p(1:100,6), p(1:100,7))
 title("Sample Error v. Time")
 xlabel("Time (s)")
 ylabel("Distance Between Measured and Predicted Center of Rotation (m)")
@@ -63,12 +67,12 @@ ylabel("Distance Between Measured and Predicted Center of Rotation (m)")
 
 %% Plot Visual
 
-N = 100000;
+N = 500000;
 
 dat = [m step.position_x step.position_y];
 dat = dat(1:N,:);
 
-scatter(dat(:,2), dat(:,3), 10, dat(:,1), 'Filled')
+scatter(dat(:,2), dat(:,3), 5, dat(:,1), 'Filled')
 colormap(jet(size(dat,1)))
 
 title("Sample Electron Path Tracing")
@@ -76,7 +80,7 @@ xlabel("X (m)")
 ylabel("Y (m)")
 
 hold on;
-r = 0.01;
+r = 0.0057785;
 ang=0:0.001:2*pi; 
 xp=r*cos(ang);
 yp=r*sin(ang);
