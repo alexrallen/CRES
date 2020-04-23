@@ -97,14 +97,19 @@
 
     <!-- electric fields --> 
 	
-    <ksfield_electric_constant name="electric_constant" field="0. -2.0e5 0."/>
+    <ksfield_electric_potentialmap
+        name="electric_mapped"
+        file="output.vti"
+        interpolation="linear"
+    >
+    </ksfield_electric_potentialmap>
 
     <ksfield_electric_ramped
                 name="electric_ramped"
-                root_field="electric_constant"
+                root_field="electric_mapped"
                 ramping_type="linear"
                 num_cycles="1"
-                ramp_up_delay="5.0e-9"
+                ramp_up_delay="-5.0e-9"
                 ramp_down_delay="4.5e-8"
                 ramp_up_time="5.0e-12"
                 ramp_down_time="5.0e-12"
@@ -183,7 +188,7 @@
 
     <!-- writers -->
 
-    <kswrite_root name="write_root" base="EmptyingField.root"/>
+    <kswrite_root name="write_root" base="EmptyingFieldMapped.root"/>
 
     <!-- output -->
 
@@ -257,7 +262,7 @@
         seed="51385"
         events="10000"
         magnetic_field="magnetic_solenoid"
-        electric_field="electric_constant"
+        electric_field="electric_mapped"
         space="space_world"
         generator="generator_uniform"
         trajectory="trajectory_exact"

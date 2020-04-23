@@ -9,7 +9,7 @@ function [step, track, map] = load_sim(basename)
     opts.VariableTypes = ["double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double", "double"];
     opts.ExtraColumnsRule = "ignore";
     opts.EmptyLineRule = "read";
-    step = readtable(basename + "_step.csv", opts);
+    step = readtable("../data" + basename + "_step.csv", opts);
     clear opts
 
 
@@ -21,7 +21,7 @@ function [step, track, map] = load_sim(basename)
     opts.ExtraColumnsRule = "ignore";
     opts.EmptyLineRule = "read";
     opts = setvaropts(opts, ["creator_name", "terminator_name"], "EmptyFieldRule", "auto");
-    track = readtable(basename + "_track.csv", opts);
+    track = readtable("../data" + basename + "_track.csv", opts);
     clear opts
 
     opts = delimitedTextImportOptions("NumVariables", 3);
@@ -31,7 +31,7 @@ function [step, track, map] = load_sim(basename)
     opts.VariableTypes = ["double", "double", "double"];
     opts.ExtraColumnsRule = "ignore";
     opts.EmptyLineRule = "read";
-    map = readtable(basename + "_map.csv", opts);
+    map = readtable("../data" + basename + "_map.csv", opts);
     clear opts
 
 end
